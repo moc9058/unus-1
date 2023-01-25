@@ -15,14 +15,14 @@ cv2.waitKey(0)
 '''
 
 # video
-cap = cv2.VideoCapture('./test_videos/24_19-48-23.mp4')
+cap = cv2.VideoCapture(0)
 lane_detection = cv_util.libLANE()
 
 while (cap.isOpened()):
     ret, image = cap.read()
-    detected = lane_detection.lane(image)
+    # detected = lane_detection.lane(image)
 
-    cv2.imshow('result', detected)
+    cv2.imshow('result', image)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
