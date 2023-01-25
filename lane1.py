@@ -15,7 +15,7 @@ cv2.waitKey(0)
 '''
 
 # video
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture('./test_videos/24_19-48-23.mp4')
 lane_detection = cv_util.libLANE()
 
 while (cap.isOpened()):
@@ -23,7 +23,7 @@ while (cap.isOpened()):
     detected = lane_detection.lane(image)
     
     cv2.imshow('result', detected)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
 # Release
@@ -36,7 +36,7 @@ cv2.destroyAllWindows()
 cam = cam_util.libCAMERA()
 ch0, ch1 = cam.initial_setting(cam0port=1, cam1port=2, capnum=2)
 lane_detection = cv_util.libLANE()
-
+q
 while True:
     _, frame0, _, frame1 = cam.camera_read(ch0, ch1)
     cam.image_show(frame0, frame1)
