@@ -115,6 +115,8 @@ class libCAMERA(object):
         self.row, self.col, self.dim = img.shape
 
         hsv_img = self.hsv_conversion(img)
+
+        # h: Hue, s: Saturation, v: Value
         h, s, v = cv2.split(hsv_img)
 
         s_cond = s > SATURATION
@@ -152,8 +154,16 @@ class libCAMERA(object):
                                     param1=200, param2=10, minRadius=40, maxRadius=100)
 
     def morphology(self, img, kernel_size=(None, None), mode="opening"):
+
+        # Shape of the kernel = rectangle
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
 
+        # Erosion: kernel과 겹치는 범위에 하나라도 0이 있으면 픽셀을 0으로 만듦.
+        # Dilation: kernel과 겹치는 범위에 하나라도 1이면 픽셀을 1로 만듦.
+
+        # Opening: erosion -> dilation
+        # Closing: dilation -> erosion
+        
         if mode == "opening":
             dst = cv2.erode(img.copy(), kernel)
             return cv2.dilate(dst, kernel)

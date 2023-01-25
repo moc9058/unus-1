@@ -13,15 +13,22 @@ class libLANE(object):
         self.mid_y_2 = 0
         self.max_y = 0
         self.match_mask_color = 255
+
     def region_of_interest(self, img, vertices):
         mask = np.zeros_like(img)
         if len(img.shape) > 2:
+            # white
             self.match_mask_color = (255,255,255)
+        
+        # All black except mask
         cv2.fillPoly(mask, vertices, self.match_mask_color)
         masked_image = cv2.bitwise_and(img, mask)
         return masked_image
+
+    # result = α*initial_img + β*img + λ
     def weighted_img(self, img, initial_img, α=1, β=1., λ=0.):
         return cv2.addWeighted(initial_img, α, img, β, λ)
+    
     def hough_transform(self, img, rho=None, theta=None, threshold=None, mll=None, mlg=None, mode="lineP"):
         if mode == "line":
             return cv2.HoughLines(img.copy(), rho, theta, threshold)
@@ -31,6 +38,7 @@ class libLANE(object):
         elif mode == "circle":
             return cv2.HoughCircles(img.copy(), cv2.HOUGH_GRADIENT, dp=1, minDist=80,
                                     param1=200, param2=10, minRadius=40, maxRadius=100)
+    
     def morphology(self, img, kernel_size=(None, None), mode="opening"):
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, kernel_size)
 
@@ -42,6 +50,7 @@ class libLANE(object):
             return cv2.erode(dst, kernel)
         elif mode == "gradient":
             return cv2.morphologyEx(img.copy(), cv2.MORPH_GRADIENT, kernel)
+    
     def preprocess(self, img):
         region_of_interest_vertices = np.array(
             [[(0, self.height), (0, self.height * (5 / 12)),
