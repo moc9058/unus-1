@@ -65,7 +65,6 @@ class libLANE(object):
         close = self.morphology(open, (5, 5), mode="closing")
         blur_image = cv2.GaussianBlur(close, (3, 3), 0)
         canny_image = cv2.Canny(blur_image, 130, 250)
-        cropped_image = self.region_of_interest(canny_image, np.array([region_of_interest_vertices], np.int32), )
 
         return canny_image
     
