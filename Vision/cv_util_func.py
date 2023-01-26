@@ -55,24 +55,25 @@ class libLANE(object):
     
     def preprocess(self, img):
         region_of_interest_vertices = np.array(
-            [[(0, self.height), (0, self.height * (3 / 12)),
-              (self.width, self.height * (3 / 12)), (self.width, self.height)]],
+            [[(0, self.height), (0, self.height * (5 / 12)),
+              (self.width, self.height * (5 / 12)), (self.width, self.height)]],
             dtype=np.int32) ### FIX ME
         
         hsv_image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h,s,v = cv2.split(hsv_image)
         v_max = np.max(v)
-        lower_white = np.array([20,0,int(v_max*0.72)])
+        lower_white = np.array([25,0,int(v_max*0.6)])
         upper_white = np.array([130,25,255])
         mask = cv2.inRange(hsv_image, lower_white, upper_white)
         close = self.morphology(mask, (4,4), mode="closing")
-        blur_image = cv2.GaussianBlur(close, (3,3), 0)
+        open = self.morphology(close, (4,4), mode="opening")
+        blur_image = cv2.GaussianBlur(open, (3,3), 0)
         # gray_image = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         # hist = cv2.equalizeHist(gray_image)
         # open = self.morphology(hist, (3, 3), mode="opening")
         # close = self.morphology(open, (5, 5), mode="closing")
         # blur_image = cv2.GaussianBlur(close, (3, 3), 0)
-        canny_image = cv2.Canny(blur_image, 100, 200)
+        canny_image = cv2.Canny(blur_image, 200, 400)
         ROI = self.region_of_interest(canny_image, region_of_interest_vertices)
 
         return ROI
@@ -164,8 +165,8 @@ class libLANE(object):
         # self.mid_y_2 = int(image.shape[0] * (3 / 10))
         # self.max_y = int(image.shape[0])
         lines = self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP")
-        print(lines)
-        line_image = self.draw_lines(image, lines, color=[255, 0, 0], thickness=5)
+        # print(lines)
+        line_image = self.draw_lines(image, lines, color=[0, 0, 255], thickness=5)
         result = self.weighted_img(line_image, image, 0.8, 1.0, 0)
 
         '''
