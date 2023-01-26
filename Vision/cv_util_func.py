@@ -56,17 +56,17 @@ class libLANE(object):
     def preprocess(self, img):
         region_of_interest_vertices = np.array(
             [[(0, self.height), (0, self.height * (5 / 12)),
-              (self.width, self.height * (5 / 12)), (self.width, self.height)]],
+              (self.width*0.8, self.height * (5 / 12)), (self.width, self.height * (5 / 12)), (self.width, self.height)]],
             dtype=np.int32) ### FIX ME
         
         hsv_image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         h,s,v = cv2.split(hsv_image)
         v_max = np.max(v)
         lower_white = np.array([25,0,int(v_max*0.6)])
-        upper_white = np.array([130,25,255])
+        upper_white = np.array([130,35,255])
         mask = cv2.inRange(hsv_image, lower_white, upper_white)
-        close = self.morphology(mask, (4,4), mode="closing")
-        open = self.morphology(close, (4,4), mode="opening")
+        # close = self.morphology(mask, (4,4), mode="closing")
+        open = self.morphology(mask, (4,4), mode="opening")
         blur_image = cv2.GaussianBlur(open, (3,3), 0)
         # gray_image = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         # hist = cv2.equalizeHist(gray_image)
@@ -159,10 +159,10 @@ class libLANE(object):
         self.height, self.width = image.shape[:2]
         pre_image = self.preprocess(image)
 
-        lines = self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP")
+        # lines = self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP")
         # print(lines)
-        line_image = self.draw_lines(image, lines, color=[0, 0, 255], thickness=5)
-        result = self.weighted_img(line_image, image, 0.8, 1.0, 0)
+        # line_image = self.draw_lines(image, self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP"), color=[0, 0, 255], thickness=5)
+        result = self.weighted_img(self.draw_lines(image, self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP"), color=[0, 0, 255], thickness=5), image, 0.8, 1.0, 0)
 
         '''
         left_line_x_1 = []
