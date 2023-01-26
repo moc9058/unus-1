@@ -159,11 +159,6 @@ class libLANE(object):
         self.height, self.width = image.shape[:2]
         pre_image = self.preprocess(image)
 
-        # # What do they mean?
-        # self.min_y = int(image.shape[0] * (5 / 10))
-        # self.mid_y_1 = int(image.shape[0] * (6 / 10))
-        # self.mid_y_2 = int(image.shape[0] * (3 / 10))
-        # self.max_y = int(image.shape[0])
         lines = self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP")
         # print(lines)
         line_image = self.draw_lines(image, lines, color=[0, 0, 255], thickness=5)
