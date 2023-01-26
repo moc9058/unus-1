@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import cv2
 import Vision.cv_util_func as cv_util
-import Vision.cam_util_func as cam_util
+import Vision.cam_util_func as cam_utilq
 
 '''
 # image
@@ -15,7 +15,7 @@ cv2.waitKey(0)
 '''
 
 # video
-cap = cv2.VideoCapture('./test_videos/20_17-06-01/20_17-41-04.mp4')
+cap = cv2.VideoCapture('./test_videos/230120/9.mp4')
 lane_detection = cv_util.libLANE()
 
 while (cap.isOpened()):
