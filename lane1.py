@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import cv2
+import numpy as np
 import Vision.cv_util_func1 as cv_util
 import Vision.cam_util_func as cam_util
+import sys
 
 '''
 # image
@@ -16,27 +18,27 @@ cv2.waitKey(0)
 
 # video
 cap = cv2.VideoCapture('./test_videos/230120/1.mp4')
-
 lane_detection = cv_util.libLANE()
 
 while (cap.isOpened()):
     ret, image = cap.read()
-    detected = lane_detection.lane(image)
+    height, width, channel=image.shape
+    image_ul = image[:height//2, :width//2, :]
+    image_ur = image[:height//2, width//2:, :]
+    image_ll = image[height//2:, :width//2, :]
+    image_lr = image[height//2:, width//2:, :]
+    # cv2.imshow('Image', image_ul)
 
-    H = image.shape[0]
-    W = image.shape[1]
-    
-    
-    # roi_image = detected[int(H*(lane_detection.roi_height / 12)):H,:,:]
-    # print(roi_image.shape)
+    detected = lane_detection.lane(image)
     cv2.imshow('result', detected)
+
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
 # Release
 cap.release()
 cv2.destroyAllWindows()
-
+sys.exit()
 
 '''
 # cam
