@@ -16,6 +16,7 @@ cv2.waitKey(0)
 
 # video
 cap = cv2.VideoCapture('./test_videos/230120/1.mp4')
+
 lane_detection = cv_util.libLANE()
 
 while (cap.isOpened()):
