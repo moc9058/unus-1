@@ -79,7 +79,7 @@ class libLANE(object):
         canny_image = cv2.Canny(blur_image, 200, 400)
         ROI = self.region_of_interest(canny_image, region_of_interest_vertices)
 
-        return hsv_image
+        return ROI
     
     def draw_lines(self, img, lines=None, color=[0, 0, 255], thickness=7):
         line_img = np.zeros((img.shape[0],img.shape[1],3),dtype=np.uint8)
@@ -162,8 +162,8 @@ class libLANE(object):
         self.height, self.width = image.shape[:2]
         pre_image = self.preprocess(image)
 
-        # lines = self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP")
-        # line_image = self.draw_lines(image, lines, color=[0, 0, 255], thickness=5)
-        # result = self.weighted_img(line_image, image, 0.8, 1.0, 0)
+        lines = self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP")
+        line_image = self.draw_lines(image, lines, color=[0, 0, 255], thickness=5)
+        result = self.weighted_img(line_image, image, 0.8, 1.0, 0)
 
-        return pre_image
+        return result

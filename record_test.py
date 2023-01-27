@@ -41,7 +41,7 @@ else:
     video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
     num_files = len(os.listdir("./record"))
-    out = cv2.VideoWriter(f"./record/{num_files-1}.mp4", cv2.VideoWriter_fourcc(*'mp4v'), 20, (1920, 1080))
+    out = cv2.VideoWriter(f"./record/{num_files-2}.mp4", cv2.VideoWriter_fourcc(*'mp4v'), 20, (1920, 1080))
     while True:
         ret, image = video.read()
         cv2.imshow("Webcam1", image)
