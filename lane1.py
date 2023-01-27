@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import cv2
 import Vision.cv_util_func1 as cv_util
-import Vision.cam_util_func as cam_utilq
+import Vision.cam_util_func as cam_util
 
 '''
 # image
@@ -26,8 +26,8 @@ while (cap.isOpened()):
     W = image.shape[1]
     
     
-    roi_image = detected[int(H*(lane_detection.roi_height / 12)):H,:,:]
-    print(roi_image.shape)
+    # roi_image = detected[int(H*(lane_detection.roi_height / 12)):H,:,:]
+    # print(roi_image.shape)
     cv2.imshow('result', detected)
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break

@@ -167,4 +167,4 @@ class libLANE(object):
         line_image = self.draw_lines(image, lines, color=[0, 0, 255], thickness=5)
         result = self.weighted_img(line_image, image, 0.8, 1.0, 0)
 
-        return result
+        return pre_image
