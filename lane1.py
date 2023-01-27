@@ -17,8 +17,6 @@ cv2.waitKey(0)
 '''
 
 # video
-cv2.namedWindow('result')
-cv2.setMouseCallback('result', mouse_pos_BGR)
 cap = cv2.VideoCapture('./test_videos/230120/1.mp4')
 lane_detection = cv_util.libLANE()
 

@@ -5,7 +5,7 @@ import cv2
 import datetime
 import sys
 
-num_camera = 1
+num_camera = 2
 if num_camera == 2:
     # left
     video1 = cv2.VideoCapture(0,cv2.CAP_MSMF)
@@ -40,8 +40,8 @@ else:
     video.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
-    num_files = len(os.listdir("./record/230127"))
-    out = cv2.VideoWriter(f"./record/{num_files}.mp4", cv2.VideoWriter_fourcc(*'mp4v'), 20, (1920, 1080))
+    num_files = len(os.listdir("./record"))
+    out = cv2.VideoWriter(f"./record/{num_files-1}.mp4", cv2.VideoWriter_fourcc(*'mp4v'), 20, (1920, 1080))
     while True:
         ret, image = video.read()
         cv2.imshow("Webcam1", image)
