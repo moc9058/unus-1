@@ -5,7 +5,7 @@ import numpy as np
 np.set_printoptions(threshold=sys.maxsize, linewidth=150)
 
 class libLANE(object):
-    def __init__(self):
+    def __init__(self, roi_height=5):
         self.height = 0
         self.width = 0
         self.min_y = 0
@@ -13,6 +13,8 @@ class libLANE(object):
         self.mid_y_2 = 0
         self.max_y = 0
         self.match_mask_color = 255
+
+        self.roi_height = roi_height
 
     def region_of_interest(self, img, vertices):
         mask = np.zeros_like(img)
@@ -55,24 +57,25 @@ class libLANE(object):
     
     def preprocess(self, img):
         region_of_interest_vertices = np.array(
-            [[(0, self.height), (0, self.height * (5 / 12)),
-              (self.width, self.height * (5 / 12)), (self.width, self.height)]],
+            [[(0, self.height), (0, self.height * (self.roi_height / 12)),
+              (self.width, self.height * (self.roi_height / 12)), (self.width, self.height)]],
             dtype=np.int32) ### FIX ME
         
         hsv_image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        h,s,v = cv2.split(hsv_image)
-        v_max = np.max(v)
-        lower_white = np.array([25,0,int(v_max*0.6)])
-        upper_white = np.array([130,25,255])
-        mask = cv2.inRange(hsv_image, lower_white, upper_white)
-        close = self.morphology(mask, (4,4), mode="closing")
-        open = self.morphology(close, (4,4), mode="opening")
-        blur_image = cv2.GaussianBlur(open, (3,3), 0)
-        # gray_image = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        # hist = cv2.equalizeHist(gray_image)
-        # open = self.morphology(hist, (3, 3), mode="opening")
-        # close = self.morphology(open, (5, 5), mode="closing")
-        # blur_image = cv2.GaussianBlur(close, (3, 3), 0)
+        # h,s,v = cv2.split(hsv_image_after_equalized)
+
+        lower_bgr = np.array([180,180,180])
+        upper_bgr = np.array([255,255,255])
+        mask_bgr = cv2.inRange(img, lower_bgr, upper_bgr)
+
+        lower_hsv = np.array([30,0,190])
+        upper_hsv = np.array([130,70,255])
+        mask_hsv = cv2.inRange(hsv_image, lower_hsv, upper_hsv)
+
+        mask = mask_bgr & mask_hsv
+        # close = self.morphology(mask, (4,4), mode="closing")
+        # open = self.morphology(close, (4,4), mode="opening")
+        blur_image = cv2.GaussianBlur(mask_bgr, (3,3), 0)
         canny_image = cv2.Canny(blur_image, 200, 400)
         ROI = self.region_of_interest(canny_image, region_of_interest_vertices)
 
@@ -87,7 +90,6 @@ class libLANE(object):
                 cv2.line(line_img, (x1, y1), (x2, y2), color, thickness)
         return line_img
     
-    '''
     # Temporarily commented
     # opencv used BGR system
     def draw_poly(self, img, poly_left, poly_right, min, max):
@@ -155,7 +157,7 @@ class libLANE(object):
             else:
                 steer = 'l'
         return steer
-    '''
+    
     def lane(self, image):
         self.height, self.width = image.shape[:2]
         pre_image = self.preprocess(image)
