@@ -56,30 +56,67 @@ class libLANE(object):
             return cv2.morphologyEx(img.copy(), cv2.MORPH_GRADIENT, kernel)
     
     def preprocess(self, img):
-        region_of_interest_vertices = np.array(
-            [[(0, self.height), (0, self.height * (self.roi_height / 12)),
-              (self.width, self.height * (self.roi_height / 12)), (self.width, self.height)]],
-            dtype=np.int32) ### FIX ME
-        
-        hsv_image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        # h,s,v = cv2.split(hsv_image_after_equalized)
+        height_limit = int(self.height * (5/12))
+        hls_image = cv2.cvtColor(img,cv2.COLOR_BGR2HLS_FULL)
+        hsv_image = cv2.cvtColor(img,cv2.COLOR_BGR2HSV_FULL)
+        b,g,r = cv2.split(img)
+        h,l,s_hls = cv2.split(hls_image)
+        h,s_hsv,v = cv2.split(hsv_image)
 
-        lower_bgr = np.array([180,180,180])
-        upper_bgr = np.array([255,255,255])
-        mask_bgr = cv2.inRange(img, lower_bgr, upper_bgr)
+        
+        # mask1: find white pixels roughly based on rgb
+        mask1 = cv2.inRange(img,np.array([170,180,180]),np.array([255,255,255]))
+
+
+        # mask2: filter green background pixels roughly based on hsv
+        mask2 = cv2.inRange(hsv_image, np.array([0,0,190]), np.array([255,50,255]))
+
+        # mask3: Choose super white pixels
+        mask3 = cv2.inRange(img, np.array([220,220,220]),np.array([255,255,255]))
+        
+
+
+        mask = mask1&mask2
+        mask = cv2.GaussianBlur(mask, (5,5),0)
+        mask = cv2.Canny(mask,200,400)
+        '''
+        # mask 1
+        percentile_b = int(np.percentile(b[:height_limit,:], 90))
+        percentile_g = int(np.percentile(g[:height_limit,:], 90))
+        percentile_r = int(np.percentile(r[:height_limit,:], 90))
+        print(percentile_b, percentile_g, percentile_r)
+        mask1 = cv2.inRange(img,np.array([min(200, percentile_b),min(200,percentile_g),min(200,percentile_r)]),np.array([255,255,255]))
+        mask1[:int(self.height * (5 / 12)),:] = 0
+
+        # mask 2
+        percentile_s = np.percentile(s[:height_limit,:],50)
+        # print(percentile_s)
+        mask2 = np.zeros_like(s)
+        mask2[s < percentile_s] = 255
+
+        # mask 3
+        percentile_v = np.percentile(v[:height_limit,:],60)
+        mask3 = np.zeros_like(v)
+        mask3[v > percentile_v] = 255
+
+        mask_bgr = cv2.inRange(img, np.array([180,180,180]), np.array([255,255,255]))
 
         lower_hsv = np.array([30,0,190])
         upper_hsv = np.array([130,70,255])
         mask_hsv = cv2.inRange(hsv_image, lower_hsv, upper_hsv)
 
-        mask = mask_bgr & mask_hsv
+        # mask = mask_bgr & mask_hsv
         # close = self.morphology(mask, (4,4), mode="closing")
         # open = self.morphology(close, (4,4), mode="opening")
         blur_image = cv2.GaussianBlur(mask_bgr, (3,3), 0)
         canny_image = cv2.Canny(blur_image, 200, 400)
-        ROI = self.region_of_interest(canny_image, region_of_interest_vertices)
+        
+        
+        mask = mask1 & mask2 & mask3
 
-        return ROI
+        return mask
+        '''
+        return mask3
     
     def draw_lines(self, img, lines=None, color=[0, 0, 255], thickness=7):
         line_img = np.zeros((img.shape[0],img.shape[1],3),dtype=np.uint8)
@@ -162,8 +199,8 @@ class libLANE(object):
         self.height, self.width = image.shape[:2]
         pre_image = self.preprocess(image)
 
-        lines = self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP")
-        line_image = self.draw_lines(image, lines, color=[0, 0, 255], thickness=5)
-        result = self.weighted_img(line_image, image, 0.8, 1.0, 0)
+        # lines = self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP")
+        # line_image = self.draw_lines(image, lines, color=[0, 0, 255], thickness=5)
+        # result = self.weighted_img(line_image, image, 0.8, 1.0, 0)
 
-        return result
+        return pre_image
