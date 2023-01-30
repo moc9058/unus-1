@@ -19,7 +19,7 @@ cv2.waitKey(0)
 # video
 
 
-cap = cv2.VideoCapture('./record/1.mp4')
+cap = cv2.VideoCapture('./record/4.mp4')
 # cap = cv2.VideoCapture('./record/230127/4_l.mp4')
 # cap = cv2.VideoCapture('./record/230127/7_r.mp4')
 # cap = cv2.VideoCapture('./test_videos/230120/9.mp4')
