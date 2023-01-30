@@ -36,14 +36,15 @@ if num_camera == 2:
     out1.release()
     out2.release()
 else:
-    video = cv2.VideoCapture(0, cv2.CAP_MSMF)
+    video = cv2.VideoCapture(0)
     video.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
     video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
     num_files = len(os.listdir("./record"))
-    out = cv2.VideoWriter(f"./record/{num_files-1}.mp4", cv2.VideoWriter_fourcc(*'mp4v'), 20, (1920, 1080))
+    out = cv2.VideoWriter(f"./record/{num_files-2}.mp4", cv2.VideoWriter_fourcc(*'mp4v'), 20, (1920, 1080))
     while True:
         ret, image = video.read()
+        print(ret)
         cv2.imshow("Webcam1", image)
         out.write(image)
         if cv2.waitKey(1) & 0xFF == ord('q'):
