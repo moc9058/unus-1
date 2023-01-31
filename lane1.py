@@ -16,9 +16,13 @@ import sys
 def image():
     # image
     lane_detection = cv_util.libLANE()
-    image = cv2.imread('./flower_images/flower_4.jpg')
+    image = cv2.imread('./flower_images/flower_9.jpg')
     result = lane_detection.lane(image)
-
+    
+    cv2.imshow('image', image)
+    # cv2.imshow('hls', cv2.cvtColor(image, cv2.COLOR_BGR2HLS))
+    # cv2.imshow('hls_full', cv2.cvtColor(image, cv2.COLOR_BGR2HLS_FULL))
+    # cv2.imshow('hsv', cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
     cv2.imshow('result', result)
     cv2.waitKey(0)
 
@@ -35,10 +39,6 @@ def video():
     while (cap.isOpened()):
         ret, image = cap.read()
         # height, width, channel=image.shape
-        # image_ul = image[:height//2, :width//2, :]
-        # image_ur = image[:height//2, width//2:, :]
-        # image_ll = image[height//2:, :width//2, :]
-        # image_lr = image[heiqght//2:, width//2:, :]
         # cv2.imshow('Image', image_ul)
 
         # detected = lane_detection.lane(image)

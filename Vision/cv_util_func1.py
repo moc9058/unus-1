@@ -56,29 +56,35 @@ class libLANE(object):
             return cv2.morphologyEx(img.copy(), cv2.MORPH_GRADIENT, kernel)
     
     def preprocess(self, img):
-        height_limit = int(self.height * (5/12))
-        hls_image = cv2.cvtColor(img,cv2.COLOR_BGR2HLS_FULL)
-        hsv_image = cv2.cvtColor(img,cv2.COLOR_BGR2HSV_FULL)
+        HEIGHT = img.shape[0]
+        hls_image = cv2.cvtColor(img,cv2.COLOR_BGR2HLS)
+        hsv_image = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
         b,g,r = cv2.split(img)
         h,l,s_hls = cv2.split(hls_image)
         h,s_hsv,v = cv2.split(hsv_image)
 
+        mask_road = cv2.inRange(img, np.array([0,0,0]),np.array([100,100,100]))
+        road_height_info = np.array([int(np.sum(mask_road[h,:])/255) for h in range(HEIGHT)])
+        road_height_info = np.cumsum(road_height_info)
+        thres = int(road_height_info[-1]*0.01)
+        thres_height = len(road_height_info[road_height_info < thres])
+        mask_road[:thres_height,:] = 0
+        num_road_pixels = int(np.sum(mask_road)/255)
+
+        # Considered noise if the number of 'road-gray' pixels is less than 200. It may be tuned
+        if num_road_pixels < 200:
+            mask_road = np.zeros_like(mask_road)
+            thres_height = HEIGHT
         
-        # mask1: find white pixels roughly based on rgb
-        mask1 = cv2.inRange(img,np.array([180,180,180]),np.array([255,255,255]))
+        # Assumed the width of lane takes up at most 100 pixels of height. Should be tuned.
+        lane_width = 100    ### FIX ME
+        thres_height = max(0,thres_height-lane_width)
 
-
-        # mask2: filter green background pixels roughly based on hsv
-        mask2 = cv2.inRange(hsv_image, np.array([0,0,190]), np.array([255,50,255]))
-
-        # mask3: Choose super white pixels
-        mask3 = cv2.inRange(img, np.array([220,220,220]),np.array([255,255,255]))
+        # mask_white: it contains flower leaves and lanes
+        mask_white = cv2.inRange(img,np.array([160,160,150]),np.array([255,255,255]))
         
-
-
-        mask = mask1&mask2
-        mask = cv2.GaussianBlur(mask, (5,5),0)
-        mask = cv2.Canny(mask,200,400)
+        # White pixels above lane(thres_height) is considered to be a flower.
+        mask_white[:thres_height,:] = 0
         '''
         # mask 1
         percentile_b = int(np.percentile(b[:height_limit,:], 90))
@@ -116,7 +122,7 @@ class libLANE(object):
 
         return mask
         '''
-        return mask1
+        return mask_white
     
     def draw_lines(self, img, lines=None, color=[0, 0, 255], thickness=7):
         line_img = np.zeros((img.shape[0],img.shape[1],3),dtype=np.uint8)
