@@ -5,51 +5,60 @@ import Vision.cv_util_func1 as cv_util
 import Vision.cam_util_func as cam_util
 import sys
 
-'''
-# image
-lane_detection = cv_util.libLANE()
-image = cv2.imread('./test_images/24_19-48-02.png')
-result = lane_detection.lane(image)
 
-cv2.imshow('result', result)
-cv2.waitKey(0)
+# # image
+# lane_detection = cv_util.libLANE()
+# image = cv2.imread('./flower_images/flower_1.png')
+# result = lane_detection.lane(image)
+# cv2.imshow('result', result)
+# cv2.waitKey(0)
 
-'''
+def image():
+    # image
+    lane_detection = cv_util.libLANE()
+    image = cv2.imread('./flower_images/flower_4.jpg')
+    result = lane_detection.lane(image)
+
+    cv2.imshow('result', result)
+    cv2.waitKey(0)
+
 
 # video
+def video():
 
+    # cap = cv2.VideoCapture('./record/4.mp4')
+    # cap = cv2.VideoCapture('./record/230127/4_l.mp4')
+    # cap = cv2.VideoCapture('./record/230127/7_r.mp4')
+    cap = cv2.VideoCapture('./test_videos/230120/1.mp4')
+    # lane_detection = cv_util.libLANE()
 
-cap = cv2.VideoCapture('./record/4.mp4')
-# cap = cv2.VideoCapture('./record/230127/4_l.mp4')
-# cap = cv2.VideoCapture('./record/230127/7_r.mp4')
-# cap = cv2.VideoCapture('./test_videos/230120/9.mp4')
-lane_detection = cv_util.libLANE()
+    while (cap.isOpened()):
+        ret, image = cap.read()
+        # height, width, channel=image.shape
+        # image_ul = image[:height//2, :width//2, :]
+        # image_ur = image[:height//2, width//2:, :]
+        # image_ll = image[height//2:, :width//2, :]
+        # image_lr = image[heiqght//2:, width//2:, :]
+        # cv2.imshow('Image', image_ul)
 
-while (cap.isOpened()):
-    ret, image = cap.read()
-    # height, width, channel=image.shape
-    # image_ul = image[:height//2, :width//2, :]
-    # image_ur = image[:height//2, width//2:, :]
-    # image_ll = image[height//2:, :width//2, :]
-    # image_lr = image[heiqght//2:, width//2:, :]
-    # cv2.imshow('Image', image_ul)
+        # detected = lane_detection.lane(image)
+        
+        # cv2.imshow('image', image)
+        # cv2.imshow('result', detected)
+        # cv2.imshow('hls', cv2.cvtColor(image, cv2.COLOR_BGR2HLS_FULL))
+        cv2.imshow('hsv', cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL))
+        key = cv2.waitKey(5)
+        if key & 0xFF == ord('q'):
+            break
+        elif key & 0xFF == ord('w'):
+            cv2.waitKey(0)
 
-    detected = lane_detection.lane(image)
-    
-    cv2.imshow('image', image)
-    cv2.imshow('result', detected)
-    # cv2.imshow('hls', cv2.cvtColor(image, cv2.COLOR_BGR2HLS_FULL))
-    # cv2.imshow('hsv', cv2.cvtColor(image, cv2.COLOR_BGR2HSV_FULL))
-    key = cv2.waitKey(5)
-    if key & 0xFF == ord('q'):
-        break
-    elif key & 0xFF == ord('w'):
-        cv2.waitKey(0)
+    # Release
+    cap.release()
+    cv2.destroyAllWindows()
+    sys.exit()
 
-# Release
-cap.release()
-cv2.destroyAllWindows()
-sys.exit()
+image()
 
 '''
 # cam

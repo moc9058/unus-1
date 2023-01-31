@@ -65,7 +65,7 @@ class libLANE(object):
 
         
         # mask1: find white pixels roughly based on rgb
-        mask1 = cv2.inRange(img,np.array([170,180,180]),np.array([255,255,255]))
+        mask1 = cv2.inRange(img,np.array([180,180,180]),np.array([255,255,255]))
 
 
         # mask2: filter green background pixels roughly based on hsv
@@ -116,7 +116,7 @@ class libLANE(object):
 
         return mask
         '''
-        return mask3
+        return mask1
     
     def draw_lines(self, img, lines=None, color=[0, 0, 255], thickness=7):
         line_img = np.zeros((img.shape[0],img.shape[1],3),dtype=np.uint8)
