@@ -16,13 +16,13 @@ import sys
 def image():
     # image
     lane_detection = cv_util.libLANE()
-    image = cv2.imread('./flower_images/flower_9.jpg')
+    image = cv2.imread('./230130/12.jpg')
+    # image = cv2.imread('./flower_images/flower_9.jpg')
     result = lane_detection.lane(image)
     
     cv2.imshow('image', image)
     # cv2.imshow('hls', cv2.cvtColor(image, cv2.COLOR_BGR2HLS))
-    # cv2.imshow('hls_full', cv2.cvtColor(image, cv2.COLOR_BGR2HLS_FULL))
-    # cv2.imshow('hsv', cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
+    cv2.imshow('hsv', cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
     cv2.imshow('result', result)
     cv2.waitKey(0)
 
