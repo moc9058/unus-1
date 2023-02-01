@@ -54,54 +54,41 @@ class libLANE(object):
             return cv2.erode(dst, kernel)
         elif mode == "gradient":
             return cv2.morphologyEx(img.copy(), cv2.MORPH_GRADIENT, kernel)
-    def cutoff(self, mask, percentile=0.99, min_num = 1000):
-        HEIGHT = mask.shape[0]
-        num_target_pixels = int(np.sum(mask) / 255)
-        if num_target_pixels < min_num:
-            return np.zeros_like(mask), HEIGHT
-        target_height_info = np.array([int(np.sum(mask[h,:])/255) for h in range(HEIGHT)])
-        target_height_info = np.cumsum(target_height_info)
-        thres = int(target_height_info[-1]*(1-percentile))
-        thres_mask_height = len(target_height_info[target_height_info < thres])
-        mask[:thres_mask_height, :] = 0
-        return mask, thres_mask_height
 
     def preprocess(self, img):
         HEIGHT = img.shape[0]
-        hls_image = cv2.cvtColor(img,cv2.COLOR_BGR2HLS)
         hsv_image = cv2.cvtColor(img,cv2.COLOR_BGR2HSV)
         b,g,r = cv2.split(img)
-        h,l,s_hls = cv2.split(hls_image)
-        h,s_hsv,v = cv2.split(hsv_image)
+        h,s,v = cv2.split(hsv_image)
 
-        mask_road = cv2.inRange(img, np.array([0,0,0]),np.array([100,100,100]))
-        mask_road, thres_road_height = self.cutoff(mask_road)
-        # road_height_info = np.array([int(np.sum(mask_road[h,:])/255) for h in range(HEIGHT)])
-        # road_height_info = np.cumsum(road_height_info)
-        # thres = int(road_height_info[-1]*0.01)
-        # thres_road_height = len(road_height_info[road_height_info < thres])
-        # mask_road[:thres_road_height,:] = 0
-        # num_road_pixels = int(np.sum(mask_road)/255)
+        mask_green = cv2.inRange(hsv_image, np.array([10, 50, 100]), np.array([50, 255, 255]))
+        # mask_green_rgb = cv2.inRange(img, np.array([]), np.array([]))
+        num_green_pixels = int(np.sum(mask_green)/255)
+        if num_green_pixels < 300:
+            mask_green = np.zeros_like(mask_green)
+            green_thres_height = 0
+            green_mid_height = 0
+        else:
+            # Separating green pixels. Lower 1% of them are considered noise.
+            green_height_info = np.array([int(np.sum(mask_green[h,:])/255) for h in range(HEIGHT-1, -1, -1)])
+            green_height_cumul = np.cumsum(green_height_info)
+            green_thres = green_height_cumul[-1]*0.01   ### May be tuned
+            green_mid = green_height_cumul[-1]*0.6
+            green_thres_height = 1080 - len(green_height_cumul[green_height_cumul < green_thres])
+            green_mid_height = 1080 - len(green_height_cumul[green_height_cumul < green_mid])
+            mask_green[green_thres_height:,:] = 0
 
-        # # Considered noise if the number of 'road-gray' pixels is less than 200. It may be tuned
-        # if num_road_pixels < 200:
-        #     mask_road = np.zeros_like(mask_road)
-        #     thres_road_height = HEIGHT
-        
-        # Assumed the width of lane takes up at most 100 pixels of height. Should be tuned.
-        lane_width = 100    ### FIX ME
-        thres_road_height = max(0,thres_road_height-lane_width)
+        # mask_white: it contains flower leaves and lanes.
+        mask_white_bgr = cv2.inRange(img,np.array([150,140,140]),np.array([255,255,255]))
+        v_max = np.max(v)
+        mask_white_hsv = cv2.inRange(hsv_image,np.array([0,0,v_max-50]),np.array([160,40,v_max]))
 
-        # mask_white: it contains flower leaves and lanes
-        mask_white_bgr = cv2.inRange(img,np.array([150,140,140]),np.array([256,256,256]))
-        mask_white_hsv = cv2.inRange(hsv_image,np.array([0,0,150]),np.array([170,40,256]))
-
-        # White pixels above lane(thres_height) is considered to be a flower.
+        # White pixels above green_mid_height is considered to be a flower.
         mask = mask_white_bgr & mask_white_hsv
-        mask[:thres_road_height,:] = 0
+        mask[:green_mid_height,:] = 0
 
         
-        return mask_white_bgr
+        return mask
     
     def draw_lines(self, img, lines=None, color=[0, 0, 255], thickness=7):
         line_img = np.zeros((img.shape[0],img.shape[1],3),dtype=np.uint8)
@@ -181,11 +168,18 @@ class libLANE(object):
         return steer
     
     def lane(self, image):
-        self.height, self.width = image.shape[:2]
+        HEIGHT, WIDTH = image.shape[:2]
         pre_image = self.preprocess(image)
+        white_height_info = np.array([int(np.sum(pre_image[h,:])/255) for h in range(HEIGHT)])
+        white_height_cumul = np.cumsum(white_height_info)
+        white_thres = white_height_cumul[-1]*0.01
+        white_thres_height = len(white_height_cumul[white_height_cumul < white_thres])
+        pre_image[:white_thres_height,:] = 0
 
-        # lines = self.hough_transform(pre_image,rho=1,theta=np.pi/180,threshold=10,mll=10,mlg=20,mode="lineP")
-        # line_image = self.draw_lines(image, lines, color=[0, 0, 255], thickness=5)
-        # result = self.weighted_img(line_image, image, 0.8, 1.0, 0)
+        # num_white = int(np.sum(pre_image)/255)
+        # print(num_white)
+        pre_image = np.stack([pre_image,pre_image,pre_image],axis=2)
+        # Removing noise
+
 
         return pre_image
